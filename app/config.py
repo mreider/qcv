@@ -1,0 +1,5 @@
+SETTINGS = {}
+SETTINGS['DB_USER_NAME'] = 'root'
+SETTINGS['DB_USER_PASSWORD'] = 'root'
+SETTINGS['DB_HOST'] = 'localhost'
+SETTINGS['DB_NAME'] = 'qcvdb'
