@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QCV</title>
+    <link rel=StyleSheet href="{{ url_for('static', filename='css/skeleton.css') }}" type="text/css" >
+    <link rel=StyleSheet href="{{ url_for('static', filename='css/jquery-ui.css') }}" type="text/css" >
+    {% block styles %}
+    {% endblock %}
+    <script src="{{ url_for('static', filename='js/jquery-3.1.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery-ui.js') }}"></script>
+    {% block scripts %}
+    {% endblock %}
+</head>
+<body>
+    <div class="container">
+        <div class="row" id="header">
+            <div class="column ten"></div>
+            <div class="column one">
+            {% if session.get('access_token') %}
+                <a href="#" id="logout-btn">Logout</a>
+            {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            {% block main_content %}
+
+            {% endblock %}
+        </div>
+
+    </div>
+
+
+</body>
+</html>

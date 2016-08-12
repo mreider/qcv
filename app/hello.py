@@ -47,12 +47,14 @@ def auth_callback():
     if response.status_code == 200:
         content = json.loads(response.text)
         session['access_token'] = content.get('access_token')
-        return render_template('home.html')
+        return render_template('home.html',access_token = session.get('acess_token'))
     else:
         return render_template('error.html')
 
 @app.route('/login',methods=['GET','POST'])
 def login():
+
+
     if SETTINGS['ON_DEV']:
         callback_url = 'http://localhost:5000/callback'
     else:
@@ -62,9 +64,17 @@ def login():
     url = 'https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id='+SETTINGS['LINKEDIN_CLIENT_ID']+'&redirect_uri='+callback_url+'&state='+code+'&scope=r_basicprofile'
     return redirect(url,code=302)
 
+@app.route('/logout',methods=['GET','POST'])
+def logout():
+    del session['access_token']
+    return redirect('/')
+
 @app.route('/')
 def hello():
-    return render_template('index.html')
+    if session.get('access_token'):
+        return render_template('home.html',access_token = session.get('acess_token'))
+    else:
+        return render_template('index.html')
 
 
 if __name__ == '__main__':
