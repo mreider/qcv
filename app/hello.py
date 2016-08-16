@@ -53,7 +53,7 @@ def auth_callback():
 
 @app.route('/login',methods=['GET','POST'])
 def login():
-
+    print 'On Dev ? %s'%SETTINGS['ON_DEV']
 
     if SETTINGS['ON_DEV']:
         callback_url = 'http://localhost:5000/callback'
