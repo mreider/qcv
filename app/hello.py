@@ -75,6 +75,115 @@ class Positions(db.Model):
 
 linked_in_url = 'https://www.linkedin.com/oauth/v2/authorization'
 
+def update_user(data):
+    user_id = data.get('id')
+    try:
+        print 'USer ID %s'%user_id
+        if user_id:
+            user = UserProfile.query.get(user_id)
+            if user:
+                user.first_name = data.get('firstName')
+                user.last_name = data.get('lastName')
+                user.industry = data.get('industry')
+                user.headline = data.get('headline')
+                user.picture_url = data.get('pictureUrl')
+                user.summary = data.get('summary')
+            else:
+                user = UserProfile(user_id=user_id,first_name=data.get('firstName'),last_name=data.get('lastName'),
+                                   industry=data.get('industry'),headline=data.get('headline'),
+                                   picture_url = data.get('pictureUrl'),summary = data.get('summary'))
+                db.session.add(user)
+            db.session.commit()
+            update_positions(data,user)
+            update_education(data,user)
+            update_certifications(data,user)
+
+        db.session.commit()
+    except:
+        traceback.print_exc()
+        db.session.rollback()
+def update_certifications(data,user):
+    if data.get('certifications'):
+        user_id = user.user_id
+        for cert in data.get('certifications').get('values'):
+            cert_id = cert.get('id')
+            year = position.get('startDate').get('year')
+            month = position.get('startDate').get('month')
+            start_date = datetime.now().replace(year=year,month=month)
+            year = position.get('endDate').get('year')
+            month = position.get('startDate').get('month')
+            end_date = datetime.now().replace(year=year,month=month)
+
+            certification = Certifications.query.get(cert_id)
+            if certification:
+                certification.name = cert.get('name')
+                certification.authority = cert.get('authority').get('name')
+                certification.number = cert.get('number')
+                certification.start_date = start_date
+                certification.end_date = end_date
+            else:
+                certification = Certification(id=cert_id,user_id=user_id,name=cert.get('name'),
+                                              authority = cert.get('authority').get('name'),number = cert.get('number'),
+                                              start_date = start_date,end_date = end_date)
+            db.session.add(certification)
+
+def update_education(data,user):
+    if data.get('educations'):
+        for edu in data.get('educations').get('values'):
+            edu_id = edu.get('id')
+            education = Education.query.get(edu_id)
+            startYear = position.get('startDate').get('year')
+            start_year = datetime.now().replace(year=startYear)
+            endYear = position.get('endDate').get('year')
+            end_year = datetime.now().replace(year=endYear)
+            user_id = user.user_id
+            if education:
+                education.school_name = edu.get('schoolName')
+                education.field_of_study = edu.get('fieldOfStudy')
+                eduation.degree = edu.get('degree')
+                education.start_date = start_year
+                education.end_date = end_year
+            else:
+                education = Education(id=edu_id,user_id=user_id,school_name=edu.get('schoolName'),
+                                      field_of_study = edu.get('fieldOfStudy'),degree = edu.get('degree'),
+                                      start_date = start_year,end_date = end_year)
+            db.session.add(education)
+
+
+def update_positions(data,user):
+    from datetime import datetime
+    if data.get('positions'):
+        for position in data.get('positions').get('values'):
+            p_id = position.get('id')
+            pos = Positions.query.get(p_id)
+            month = position.get('startDate').get('month')
+            year = position.get('startDate').get('year')
+            start_date = datetime.now().replace(month=month,year=year)
+            company  = position.get('comapny').get('name')
+            is_current = position.get('isCurrent')
+            end_date = None
+            if not is_current:
+                month = position.get('endDate').get('month')
+                year = position.get('endDate').get('year')
+                end_date = datetime.now().replace(month=month,year=year)
+
+            if pos :
+                pos.summary = position.get('summary')
+                pos.title = position.get('title')
+                pos.is_current = position.get('isCurrent')
+                pos.start_date = start_date
+                pos.company = company
+                if end_date:
+                    pos.end_date = end_date
+
+            else:
+                pos = Positions(id=p_id,summary=data.get('summary'),title=data.get('title'),is_current=data.get('isCurrent'),
+                                start_date=start_date,company=company,end_date=end_date)
+            pos.user_id = user.user_id
+            db.session.add(pos)
+    else:
+        pass
+
 @app.route('/sync',methods=['GET','POST'])
 def sync():
     token = session['access_token']
@@ -85,7 +194,8 @@ def sync():
     print response.status_code
     if response.status_code == 200:
         data = json.loads(response.text)
-
+        print data
+        update_user(data)
     return session['access_token']
 
 @app.route('/callback',methods=['GET','POST'])
@@ -120,9 +230,9 @@ def login():
         callback_url = 'http://localhost:5000/callback'
     else:
         callback_url = 'http://qcv.space/callback'
-    code = str(uuid4).replace('-','')
+    code = str(uuid4()).replace('-','')
     print code
-    url = 'https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id='+SETTINGS['LINKEDIN_CLIENT_ID']+'&redirect_uri='+callback_url+'&state='+code+'&scope=r_basicprofile'
+    url = 'https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id='+SETTINGS['LINKEDIN_CLIENT_ID']+'&redirect_uri='+callback_url+'&state='+code+'&scope=r_fullprofile%20r_emailaddress%20w_share'
     return redirect(url,code=302)
 
 @app.route('/logout',methods=['GET','POST'])

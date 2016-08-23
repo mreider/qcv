@@ -24,7 +24,8 @@ class Database:
         self.session = Session()
         Base.metadata.create_all(self.engine)
 
-
+    def get(self,model,key):
+        return self.session.query(model).get(key)
 
     def connection_close(self):
         self.connection.close()
