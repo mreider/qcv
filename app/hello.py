@@ -250,6 +250,8 @@ def logout():
     last_name = session.get('last_name')
     del session['last_name']
     del session['first_name']
+    import time
+    time.sleep(5)
     return redirect('/'+first_name+'.'+last_name)
 
 @app.route('/<first_name>.<last_name>')
