@@ -200,12 +200,9 @@ def sync():
 
 @app.route('/callback',methods=['GET','POST'])
 def auth_callback():
+    redirectto = session.get('redirect')
     code = request.args.get('code')
-    if SETTINGS['ON_DEV']:
-        callback_url = 'http://localhost:5000/callback'
-    else:
-        callback_url = 'http://qcv.space/callback'
-
+    callback_url = SETTINGS['URL_BASE']+'callback'
     auth_url = 'https://www.linkedin.com/oauth/v2/accessToken'
     grant_type = 'authorization_code'
     client_id = SETTINGS['LINKEDIN_CLIENT_ID']
@@ -217,28 +214,44 @@ def auth_callback():
     print response.status_code
     if response.status_code == 200:
         content = json.loads(response.text)
-        session['access_token'] = content.get('access_token')
-        return render_template('home.html',access_token = session.get('acess_token'))
+        token = content.get('access_token')
+        session['access_token'] = token
+
+        profile_url = 'https://api.linkedin.com/v1/people/~:(id,first-name,last-name)?oauth2_access_token='+token+'&format=json'
+        response = requests.get(profile_url)
+        if response.status_code == 200:
+            data = json.loads(response.text)
+            id = data.get('id')
+            first_name = data.get('firstName')
+            last_name = data.get('lastName')
+            session['first_name'] = first_name
+            session['last_name'] = last_name
+            return redirect(SETTINGS['URL_BASE']+first_name+'.'+last_name)
     else:
         return render_template('error.html')
 
 @app.route('/login',methods=['GET','POST'])
 def login():
     print 'On Dev ? %s'%SETTINGS['ON_DEV']
-
-    if SETTINGS['ON_DEV']:
-        callback_url = 'http://localhost:5000/callback'
-    else:
-        callback_url = 'http://qcv.space/callback'
+    redirect_= request.args.get('redirect')
+    if redirect_:
+        session['redirect'] = redirect_
+    callback_url = SETTINGS['URL_BASE']+'callback'
     code = str(uuid4()).replace('-','')
     print code
-    url = 'https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id='+SETTINGS['LINKEDIN_CLIENT_ID']+'&redirect_uri='+callback_url+'&state='+code+'&scope=r_fullprofile%20r_emailaddress%20w_share'
+    # url = 'https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id='+SETTINGS['LINKEDIN_CLIENT_ID']+'&redirect_uri='+callback_url+'&state='+code+'&scope=r_fullprofile%20r_emailaddress%20w_share'
+    url = 'https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id='+SETTINGS['LINKEDIN_CLIENT_ID']+'&redirect_uri='+callback_url+'&state='+code+'&scope=r_basicprofile%20r_emailaddress%20w_share'
     return redirect(url,code=302)
 
 @app.route('/logout',methods=['GET','POST'])
 def logout():
     del session['access_token']
     return redirect('/')
+
+@app.route('/<first_name>.<last_name>')
+def resume(first_name,last_name):
+
+    return render_template('resume.html',first_name=first_name,last_name=last_name)
 
 @app.route('/')
 def hello():

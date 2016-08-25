@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/qcv.js') }}"></script>
+{% endblock %}
+{% block main_content%}
+    {% if session.get('access_token') and first_name == session.get('first_name') and last_name == session.get('last_name')%}
+            <div class="column ten"></div>
+            <div class="column one">
+                    <a href="#" id="sync-btn">Sync</a>
+            </div>
+    {% endif %}
+    <div class="column ten">
+        {{first_name}}.{{last_name}}
+    </div>
+
+{% endblock %}
