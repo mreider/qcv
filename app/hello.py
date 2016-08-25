@@ -246,7 +246,11 @@ def login():
 @app.route('/logout',methods=['GET','POST'])
 def logout():
     del session['access_token']
-    return redirect('/')
+    first_name = session.get('first_name')
+    last_name = session.get('last_name')
+    del session['last_name']
+    del session['first_name']
+    return redirect('/'+first_name+'.'+last_name)
 
 @app.route('/<first_name>.<last_name>')
 def resume(first_name,last_name):

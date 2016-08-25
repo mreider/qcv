@@ -1,6 +1,6 @@
 SETTINGS = {}
 
-SETTINGS['ON_DEV'] = False
+SETTINGS['ON_DEV'] = True
 
 SETTINGS['DB_USER_NAME'] = 'root'
 SETTINGS['DB_USER_PASSWORD'] = 'root'
