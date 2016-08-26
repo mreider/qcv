@@ -256,8 +256,18 @@ def logout():
 
 @app.route('/<first_name>.<last_name>')
 def resume(first_name,last_name):
+    positions = []
+    educations = []
+    certifications = []
+    user = UserProfile.query.filter_by(first_name=first_name).filter_by(last_name=last_name).first()
+    if user:
+        positions = Positions.query.filter_by(user_id=user.user_id).all()
+        educations = Education.query.filter_by(user_id=user.user_id).all()
+        certifications = Certifications.query.filter_by(user_id=user.user_id).all()
 
-    return render_template('resume.html',first_name=first_name,last_name=last_name)
+    return render_template('resume.html',first_name=first_name,last_name=last_name,
+                               user=user,positions=positions,educations=educations,
+                                certifications=certifications)
 
 @app.route('/')
 def hello():
