@@ -3,13 +3,20 @@
 <script src="{{ url_for('static', filename='js/qcv.js') }}"></script>
 {% endblock %}
 {% block main_content%}
+
     {% if session.get('access_token') and first_name == session.get('first_name') and last_name == session.get('last_name')%}
-            <div class="column ten"></div>
-            <div class="column one">
-                    <a href="#" id="sync-btn">Sync</a>
+            <div class="row" style="margin-top:10px;">
+                <div class="columns eight"></div>
+                <div class="column one">
+                        <a href="#" id="sync-btn">Sync</a>
+                </div>
+                <div class="column one">
+                        <a href="#" id="pdf-btn">PDF</a>
+                </div>
+
             </div>
     {% endif %}
-    <div class="row">
+    <div class="row" >
             <p></p>
             <div class="row">
                 <div class="one column">

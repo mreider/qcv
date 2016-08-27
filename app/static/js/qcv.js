@@ -4,6 +4,7 @@ $( function() {
         window.location.href = '/logout'
     });
     $('#sync-btn').button();
+    $('#pdf-btn').button();
 
     $('#sync-btn').click(function(){
         //Start loading GIF

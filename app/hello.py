@@ -122,7 +122,7 @@ def update_certifications(data,user):
                 certification.start_date = start_date
                 certification.end_date = end_date
             else:
-                certification = Certification(id=cert_id,user_id=user_id,name=cert.get('name'),
+                certification = Certifications(id=cert_id,user_id=user_id,name=cert.get('name'),
                                               authority = cert.get('authority').get('name'),number = cert.get('number'),
                                               start_date = start_date,end_date = end_date)
             db.session.add(certification)
@@ -132,15 +132,15 @@ def update_education(data,user):
         for edu in data.get('educations').get('values'):
             edu_id = edu.get('id')
             education = Education.query.get(edu_id)
-            startYear = position.get('startDate').get('year')
+            startYear = edu.get('startDate').get('year')
             start_year = datetime.now().replace(year=startYear)
-            endYear = position.get('endDate').get('year')
+            endYear = edu.get('endDate').get('year')
             end_year = datetime.now().replace(year=endYear)
             user_id = user.user_id
             if education:
                 education.school_name = edu.get('schoolName')
                 education.field_of_study = edu.get('fieldOfStudy')
-                eduation.degree = edu.get('degree')
+                education.degree = edu.get('degree')
                 education.start_date = start_year
                 education.end_date = end_year
             else:
