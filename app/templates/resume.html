@@ -54,7 +54,9 @@
                             {% if position.is_current %}
                                 - Present
                             {% else %}
+                                {% if position.end_date %}
                                 - {{position.end_date.strftime('%B %Y')}}
+                                {% endif %}
                             {% endif %}
                         </div>
                     </div>
