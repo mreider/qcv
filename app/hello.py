@@ -2,13 +2,15 @@
 import json
 import traceback
 import datetime
-from flask import Flask, render_template, request, session
+from flask import Flask, render_template, request, session, Response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import ForeignKey
+from weasyprint import HTML, CSS
 from werkzeug.utils import redirect
 import requests
 from config import SETTINGS
 from uuid import uuid4
+import os
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqldb://'+SETTINGS['DB_USER_NAME']+':'+SETTINGS['DB_USER_NAME']+'@'+\
@@ -198,6 +200,35 @@ def sync():
         update_user(data)
     return session['access_token']
 
+@app.route('/pdf/<first_name>.<last_name>',methods=['GET'])
+def pdf(first_name,last_name):
+
+    user = UserProfile.query.filter_by(first_name=first_name).filter_by(last_name=last_name).first()
+    if user:
+        positions = Positions.query.filter_by(user_id=user.user_id).all()
+        educations = Education.query.filter_by(user_id=user.user_id).all()
+        certifications = Certifications.query.filter_by(user_id=user.user_id).all()
+
+    data = render_template('resume.html',first_name=first_name,last_name=last_name,
+                               user=user,positions=positions,educations=educations,
+                                certifications=certifications)
+    html = HTML(string=data)
+    css_file = file('print.css','r')
+    css_content = css_file.read()
+
+    css_content = css_content % (first_name+'.'+last_name+'s CV')
+    css = CSS(string=css_content)
+    output_file = '/tmp/cv.pdf'
+    if os.path.exists(output_file):
+        os.remove(output_file)
+    html.write_pdf(output_file,stylesheets=[css])
+    content = file(output_file).read()
+    print 'PDF Generated at %s'%output_file
+    return Response(content,
+                       mimetype="application/pdf",
+                       headers={"Content-Disposition":
+                                    "attachment;filename=resume.pdf"})
+
 @app.route('/callback',methods=['GET','POST'])
 def auth_callback():
     redirectto = session.get('redirect')
@@ -253,6 +284,8 @@ def logout():
     import time
     time.sleep(5)
     return redirect('/'+first_name+'.'+last_name)
+
+
 
 @app.route('/<first_name>.<last_name>')
 def resume(first_name,last_name):

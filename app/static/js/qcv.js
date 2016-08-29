@@ -14,4 +14,11 @@ $( function() {
         });
         console.log('Sync Triggered');
     });
+    $('#pdf-btn').click(function(){
+        console.log('PDF Generation');
+        var url = '/pdf'+window.location.pathname;
+        $('#downloadFrame').remove(); // This shouldn't fail if frame doesn't exist
+        $('body').append('<iframe id="downloadFrame" style="display:none"></iframe>');
+        $('#downloadFrame').attr('src',url);
+    });
 });
