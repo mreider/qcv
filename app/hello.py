@@ -161,7 +161,7 @@ def update_positions(data,user):
             month = position.get('startDate').get('month')
             year = position.get('startDate').get('year')
             start_date = datetime.now().replace(month=month,year=year)
-            company  = position.get('comapny').get('name')
+            company  = position.get('company').get('name')
             is_current = position.get('isCurrent')
             end_date = None
             if not is_current:
