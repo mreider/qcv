@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel=StyleSheet href="{{ url_for('static', filename='css/skeleton.css') }}" type="text/css" >
+
+    <script src="{{ url_for('static', filename='js/jquery-3.1.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery-ui.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/editor.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.5/ace.js"></script>
+    <style>
+        #editor,#editor1 {
+            /** Setting height is also important, otherwise editor wont showup**/
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="tweleve columns">
+                <button id="back">BACK TO CV</button>
+            </div>
+        </div>
+        <form method="post" action="/save/{{first_name}}.{{last_name}}">
+            <div class="row">
+                <div class="six columns">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                             <h3 class="panel-title">CSS</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div id="editor1">
+                                {{css}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center"></div>
+                    <div style="text-align:right;">
+                        <a id="revert-css">revert CSS to default</a>
+                    </div>
+                </div>
+
+                <div class="six columns">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                             <h3 class="panel-title">HTML</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div id="editor">
+                                {{content}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center"></div>
+                    <div style="text-align:right;">
+                        <a id="revert-html">revert HTML to default</a>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="tweleve columns" style="text-align:right;">
+                    <input type="submit" class="btn" value="SAVE"></input>
+                </div>
+            </div>
+        </form>
+
+    </div>
+</body>
+</html>

@@ -40,6 +40,13 @@ class UserProfile(db.Model):
     picture_url = db.Column(db.Unicode(250))
     public_profile_url = db.Column(db.Unicode(250))
 
+class Themes(db.Model):
+    __tablename__ = 'themes'
+    id = db.Column(db.Integer,primary_key=True)
+    first_name = db.Column(db.Unicode(100))
+    last_name = db.Column(db.Unicode(100))
+    html_content = db.Column(db.Text)
+    css_content = db.Column(db.Text)
 
 class Education(db.Model):
     __tablename__ = 'education'
@@ -302,6 +309,33 @@ def resume(first_name,last_name):
                                user=user,positions=positions,educations=educations,
                                 certifications=certifications)
 
+@app.route('/edit/<first_name>.<last_name>')
+def edit(first_name,last_name):
+    positions = []
+    educations = []
+    certifications = []
+    theme = Themes.query.filter_by(first_name=first_name).filter_by(last_name=last_name).first()
+    if theme:
+        content = theme.html_content
+        css = theme.css_content
+    else:
+        user = UserProfile.query.filter_by(first_name=first_name).filter_by(last_name=last_name).first()
+        if user:
+            positions = Positions.query.filter_by(user_id=user.user_id).all()
+            educations = Education.query.filter_by(user_id=user.user_id).all()
+            certifications = Certifications.query.filter_by(user_id=user.user_id).all()
+
+        content = render_template('resume.html',first_name=first_name,last_name=last_name,
+                                   user=user,positions=positions,educations=educations,
+                                    certifications=certifications)
+        css = ''
+    return render_template('theme_editor.html',content=content,css=css,first_name=first_name,last_name=last_name)
+
+@app.route('/save/<first_name>.<last_name>',methods=['POST'])
+def save(first_name,last_name):
+    html_content = request.form.get('html_content')
+    css_content = request.form.get('css_content')
+    return redirect('/%s.%s'%(first_name,last_name))
 @app.route('/')
 def hello():
     if session.get('access_token'):

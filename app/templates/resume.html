@@ -7,13 +7,18 @@
 
     {% if session.get('access_token') and first_name == session.get('first_name') and last_name == session.get('last_name')%}
             <div class="row" style="margin-top:10px;">
-                <div class="columns eight"></div>
+                <div class="columns five"></div>
                 <div class="column one">
                         <a href="#" id="sync-btn">Sync</a>
                 </div>
+                <div class="columns two">
+                        <a href="#" id="theme-btn">Edit Theme</a>
+                </div>
+                {% if session.get('access_token') %}
                 <div class="column one">
                         <a href="#" id="pdf-btn">PDF</a>
                 </div>
+                {% endif %}
 
             </div>
     {% endif %}

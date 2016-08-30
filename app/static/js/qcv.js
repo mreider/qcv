@@ -5,6 +5,7 @@ $( function() {
     });
     $('#sync-btn').button();
     $('#pdf-btn').button();
+    $('#theme-btn').button();
 
     $('#sync-btn').click(function(){
         //Start loading GIF
@@ -21,4 +22,11 @@ $( function() {
         $('body').append('<iframe id="downloadFrame" style="display:none"></iframe>');
         $('#downloadFrame').attr('src',url);
     });
+    $('#theme-btn').click(function(){
+        var url = '/edit'+window.location.pathname;
+        window.location.href = url;
+    });
+
+
+
 });
