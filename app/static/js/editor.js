@@ -8,7 +8,17 @@ $(document).ready(function(){
 
     $('#back').button();
     $('#back').click(function(){
-        window.location.href = '/'+window.location.pathname.split('/')[2]
-        e;
+        window.location.href = '/'+window.location.pathname.split('/')[2];
+
+    });
+
+    $('#save-btn').click(function(){
+        console.log('Submit intercepted');
+        var html = editor.getValue();
+        var css = editor1.getValue();
+        var path =window.location.href = '/'+window.location.pathname.split('/')[2];
+        $.post('/save'+path,{html_content:html,css_content:css},function(data){
+            window.location.href = '/'+path;
+        });
     });
 });

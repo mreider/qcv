@@ -2,7 +2,7 @@
 import json
 import traceback
 import datetime
-from flask import Flask, render_template, request, session, Response
+from flask import Flask, render_template, request, session, Response, render_template_string
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import ForeignKey
 from weasyprint import HTML, CSS
@@ -299,42 +299,69 @@ def resume(first_name,last_name):
     positions = []
     educations = []
     certifications = []
+    css = None
+    htmlcontent = None
+    theme = Themes.query.filter_by(first_name=first_name).filter_by(last_name=last_name).first()
+    if theme:
+        htmlcontent = theme.html_content
+        css = theme.css_content
     user = UserProfile.query.filter_by(first_name=first_name).filter_by(last_name=last_name).first()
     if user:
         positions = Positions.query.filter_by(user_id=user.user_id).all()
         educations = Education.query.filter_by(user_id=user.user_id).all()
         certifications = Certifications.query.filter_by(user_id=user.user_id).all()
+    if htmlcontent:
+        content = render_template_string(htmlcontent,first_name=first_name,last_name=last_name,
+                                       user=user,positions=positions,educations=educations,
+                                        certifications=certifications)
+        print 'Saved content'
+    else:
+        content = render_template('basictheme.html',
+                                   user=user,positions=positions,educations=educations,
+                                    certifications=certifications)
 
-    return render_template('resume.html',first_name=first_name,last_name=last_name,
-                               user=user,positions=positions,educations=educations,
-                                certifications=certifications)
+    return render_template('resume.html',theme=content,themestyle=css,first_name=first_name,last_name=last_name)
 
 @app.route('/edit/<first_name>.<last_name>')
 def edit(first_name,last_name):
     positions = []
     educations = []
     certifications = []
+    htmlcontent = None
+    css = None
     theme = Themes.query.filter_by(first_name=first_name).filter_by(last_name=last_name).first()
     if theme:
-        content = theme.html_content
+        htmlcontent = theme.html_content
         css = theme.css_content
-    else:
-        user = UserProfile.query.filter_by(first_name=first_name).filter_by(last_name=last_name).first()
-        if user:
-            positions = Positions.query.filter_by(user_id=user.user_id).all()
-            educations = Education.query.filter_by(user_id=user.user_id).all()
-            certifications = Certifications.query.filter_by(user_id=user.user_id).all()
+    import os
+    dir_path = os.path.dirname(os.path.realpath(__file__))
 
-        content = render_template('resume.html',first_name=first_name,last_name=last_name,
-                                   user=user,positions=positions,educations=educations,
-                                    certifications=certifications)
-        css = ''
+    if htmlcontent:
+        content = htmlcontent
+    else:
+        filepath = os.path.join(dir_path,'templates','basictheme.html')
+        f = open(filepath)
+        content = f.read()
+        f.close()
+
     return render_template('theme_editor.html',content=content,css=css,first_name=first_name,last_name=last_name)
 
 @app.route('/save/<first_name>.<last_name>',methods=['POST'])
 def save(first_name,last_name):
     html_content = request.form.get('html_content')
     css_content = request.form.get('css_content')
+    print 'HTML %s'%html_content
+    print 'CSS %s'%css_content
+    theme = Themes.query.filter_by(first_name=first_name).filter_by(last_name=last_name).first()
+    if theme:
+        theme.html_content = html_content
+        theme.css_content = css_content
+    else:
+        theme = Themes(first_name=first_name,last_name=last_name,html_content=html_content,css_content=css_content)
+
+    db.session.add(theme)
+    db.session.commit()
+
     return redirect('/%s.%s'%(first_name,last_name))
 @app.route('/')
 def hello():

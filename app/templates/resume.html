@@ -3,8 +3,14 @@
 <script src="{{ url_for('static', filename='js/FileSaver.js') }}"></script>
 <script src="{{ url_for('static', filename='js/qcv.js') }}"></script>
 {% endblock %}
+{% block styles %}
+    {% if themestyle %}
+        <style>
+        {{themestyle}}
+        </style>
+    {% endif %}
+{% endblock %}
 {% block main_content%}
-
     {% if session.get('access_token') and first_name == session.get('first_name') and last_name == session.get('last_name')%}
             <div class="row" style="margin-top:10px;">
                 <div class="columns five"></div>
@@ -22,89 +28,8 @@
 
             </div>
     {% endif %}
-    <div class="row" >
-            <p></p>
-            <div class="row">
-                <div class="one column">
-                    <img prefix="og: http://ogp.me/ns#" src="{{user.picture_url}}"/>
-                </div>
-                <div class="ten columns">
-                    <div class="row">
-                        {{user.first_name}} {{user.last_name}}
-                    </div>
-                    <div class="row">
-                        {{user.summary}}
-                    </div>
-                </div>
-            </div>
-            <p></p>
-            <div class="row">
-                <span>Professional History</span>
-                {% for position in positions %}
-                    <div class="row">
-                        <div class="four columns">
-                            {{position.title}}
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="two columns">
-                            {{position.company}}
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="two columns">
-                            {{position.start_date.strftime('%B %Y') }}
-                        </div>
-                        <div class="two columns">
-                            {% if position.is_current %}
-                                - Present
-                            {% else %}
-                                {% if position.end_date %}
-                                - {{position.end_date.strftime('%B %Y')}}
-                                {% endif %}
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="ten columns">
-                            {{position.summary}}
-                         </div>
-                    </div>
-                {% endfor %}
-            </div>
-            <p></p>
-            <div class="row">
-                <span>Education</span>
-                {% for education in educations %}
-                <div class="row">
-                    <div class="three columns">
-                        {{education.school_name}}
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="one column">
-                        {{education.degree}}
-                    </div>
-                    <div class="three columns">
-                        {{education.field_of_study}}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            <p></p>
-            <div class="row">
-                <span>Certifications</span>
-                {% for certification in certifications %}
-                    <div class="row">
-                        <div class="four columns">
-                            {{certification.name}}
-                        </div>
-                        <div class="four columns">
-                            {{certification.authority}}
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-    </div>
+
+    {{theme|safe}}
+
 
 {% endblock %}
