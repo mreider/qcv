@@ -210,15 +210,26 @@ def sync():
 @app.route('/pdf/<first_name>.<last_name>',methods=['GET'])
 def pdf(first_name,last_name):
 
+    theme = Themes.query.filter_by(first_name=first_name).filter_by(last_name=last_name).first()
+    if theme:
+        htmlcontent = theme.html_content
+        css = theme.css_content
     user = UserProfile.query.filter_by(first_name=first_name).filter_by(last_name=last_name).first()
     if user:
         positions = Positions.query.filter_by(user_id=user.user_id).all()
         educations = Education.query.filter_by(user_id=user.user_id).all()
         certifications = Certifications.query.filter_by(user_id=user.user_id).all()
+    if htmlcontent:
+        content = render_template_string(htmlcontent,first_name=first_name,last_name=last_name,
+                                       user=user,positions=positions,educations=educations,
+                                        certifications=certifications)
+        print 'Saved content'
+    else:
+        content = render_template('basictheme.html',
+                                   user=user,positions=positions,educations=educations,
+                                    certifications=certifications)
 
-    data = render_template('resume.html',first_name=first_name,last_name=last_name,
-                               user=user,positions=positions,educations=educations,
-                                certifications=certifications)
+    data = render_template('resume.html',theme=content,themestyle=css,first_name=first_name,last_name=last_name)
     html = HTML(string=data)
     css_file = file('print.css','r')
     css_content = css_file.read()
@@ -286,13 +297,22 @@ def logout():
     del session['access_token']
     first_name = session.get('first_name')
     last_name = session.get('last_name')
-    del session['last_name']
-    del session['first_name']
+    session.pop('last_name', None)
+    session.pop('first_name', None)
+    session.pop('access_token', None)
     import time
     time.sleep(5)
+    session.clear()
+    session["__invalidate__"] = True
+    # print session.get('last_name')
+    # return redirect('/')
     return redirect('/'+first_name+'.'+last_name)
 
-
+@app.after_request
+def remove_if_invalid(response):
+    if "__invalidate__" in session:
+        response.delete_cookie(app.session_cookie_name)
+    return response
 
 @app.route('/<first_name>.<last_name>')
 def resume(first_name,last_name):
@@ -365,10 +385,15 @@ def save(first_name,last_name):
     return redirect('/%s.%s'%(first_name,last_name))
 @app.route('/')
 def hello():
+    print session.get('first_name')
+    print session.get('last_name')
+    print session.get('access_token')
+
     if session.get('access_token'):
         return render_template('home.html',access_token = session.get('acess_token'))
     else:
         return render_template('index.html')
+
 
 
 if __name__ == '__main__':
