@@ -12,6 +12,7 @@ from config import SETTINGS
 from uuid import uuid4
 import os
 
+from bs4 import BeautifulSoup
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqldb://'+SETTINGS['DB_USER_NAME']+':'+SETTINGS['DB_USER_NAME']+'@'+\
                                     SETTINGS['DB_HOST']+'/'+SETTINGS['DB_NAME']
@@ -373,6 +374,11 @@ def save(first_name,last_name):
     print 'HTML %s'%html_content
     print 'CSS %s'%css_content
     theme = Themes.query.filter_by(first_name=first_name).filter_by(last_name=last_name).first()
+    # soup = BeautifulSoup(html_content)
+    # html_content = soup.prettify(formatter=None)
+
+    # soup = BeautifulSoup(css_content)
+    # css_content = soup.prettify(formatter=None)
     if theme:
         theme.html_content = html_content
         theme.css_content = css_content

@@ -24,7 +24,7 @@
             </div>
         </div>
             <div class="row">
-                <div class="six columns">
+                <div class="tweleve columns">
                     <div class="panel panel-default">
                         <div class="panel-heading">
                              <h3 class="panel-title">CSS</h3>
@@ -33,15 +33,16 @@
                             <div id="editor1">
                                 {{css}}
                             </div>
+                            <input type="hidden" value="{{css}}" id="original-css">
                         </div>
                     </div>
                     <div class="text-center"></div>
                     <div style="text-align:right;">
-                        <a id="revert-css">revert CSS to default</a>
+                        <a id="revert-css" href="#">revert CSS to default</a>
                     </div>
                 </div>
-
-                <div class="six columns">
+            <div class="row">
+                <div class="tweleve columns">
                     <div class="panel panel-default">
                         <div class="panel-heading">
                              <h3 class="panel-title">HTML</h3>
@@ -50,11 +51,12 @@
                             <div id="editor">
                                 {{content}}
                             </div>
+                            <input type="hidden" value="{{content}}" id="original-html">
                         </div>
                     </div>
                     <div class="text-center"></div>
                     <div style="text-align:right;">
-                        <a id="revert-html">revert HTML to default</a>
+                        <a id="revert-html" href="#">revert HTML to default</a>
                     </div>
 
                 </div>

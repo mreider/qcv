@@ -19,12 +19,19 @@
 <body>
     <div class="container">
         <div class="row" id="header">
-            <div class="column ten"></div>
-            <div class="column one">
+
             {% if session.get('access_token') %}
+            <div class="columns three">
+
+
                 <a href="#" id="logout-btn">Logout</a>
-            {% endif %}
+
             </div>
+            {% endif %}
+            <div class="columns three">
+                <span>{{session.get('first_name')}} {{session.get('last_name')}}</span>
+            </div>
+            <!--<div class="columns nine"></div>-->
         </div>
         <div class="row">
             {% block main_content %}

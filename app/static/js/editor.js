@@ -21,4 +21,10 @@ $(document).ready(function(){
             window.location.href = '/'+path;
         });
     });
+    $('#revert-html').click(function(){
+        editor.setValue($('#original-html').val());
+    });
+    $('#revert-css').click(function(){
+        editor1.setValue($('#original-css').val());
+    });
 });
