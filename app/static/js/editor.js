@@ -14,6 +14,10 @@ $(document).ready(function(){
 
     $('#save-btn').click(function(){
         console.log('Submit intercepted');
+        var beautify = ace.require("ace/ext/beautify"); // get reference to extension
+
+//        beautify.beautify(editor.session);
+//        beautify.beautify(editor1.session);
         var html = editor.getValue();
         var css = editor1.getValue();
         var path =window.location.href = '/'+window.location.pathname.split('/')[2];

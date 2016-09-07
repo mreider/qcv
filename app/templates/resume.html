@@ -11,6 +11,16 @@
     {% endif %}
 {% endblock %}
 {% block main_content%}
+    {% if not session.get('access_token') %}
+      <div class="row">
+        <div class="eleven columns">
+            <form action="/login" method="post">
+                <button class="button-primary" type="submit">LoginWith Linkedin</button>
+            </form>
+
+        </div>
+      </div>
+    {% endif %}
     {% if session.get('access_token') and first_name == session.get('first_name') and last_name == session.get('last_name')%}
             <div class="row" style="margin-top:10px;">
                 <div class="columns five"></div>
