@@ -371,7 +371,7 @@ def edit(first_name,last_name):
 def save(first_name,last_name):
     html_content = request.form.get('html_content')
     css_content = request.form.get('css_content')
-    print 'HTML %s'%html_content
+    # print 'HTML %s'%html_content
     print 'CSS %s'%css_content
     theme = Themes.query.filter_by(first_name=first_name).filter_by(last_name=last_name).first()
     # soup = BeautifulSoup(html_content)
@@ -384,8 +384,8 @@ def save(first_name,last_name):
         theme.css_content = css_content
     else:
         theme = Themes(first_name=first_name,last_name=last_name,html_content=html_content,css_content=css_content)
+        db.session.add(theme)
 
-    db.session.add(theme)
     db.session.commit()
     import time
     time.sleep(5)
