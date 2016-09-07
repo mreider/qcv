@@ -351,6 +351,7 @@ def edit(first_name,last_name):
     htmlcontent = None
     css = None
     theme = Themes.query.filter_by(first_name=first_name).filter_by(last_name=last_name).first()
+    print theme
     if theme:
         htmlcontent = theme.html_content
         css = theme.css_content
@@ -387,8 +388,6 @@ def save(first_name,last_name):
         db.session.add(theme)
 
     db.session.commit()
-    import time
-    time.sleep(5)
     return redirect('/%s.%s'%(first_name,last_name))
 @app.route('/')
 def hello():

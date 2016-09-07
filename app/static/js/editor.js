@@ -22,7 +22,7 @@ $(document).ready(function(){
         var css = editor1.getValue();
         var path =window.location.href = '/'+window.location.pathname.split('/')[2];
         $.post('/save'+path,{html_content:html,css_content:css},function(data){
-            window.location.href = '/'+path;
+//            window.location.href = '/'+path;
         });
     });
     $('#revert-html').click(function(){
