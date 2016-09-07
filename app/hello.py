@@ -331,7 +331,7 @@ def resume(first_name,last_name):
         positions = Positions.query.filter_by(user_id=user.user_id).all()
         educations = Education.query.filter_by(user_id=user.user_id).all()
         certifications = Certifications.query.filter_by(user_id=user.user_id).all()
-    if htmlcontent:
+    if htmlcontent :
         content = render_template_string(htmlcontent,first_name=first_name,last_name=last_name,
                                        user=user,positions=positions,educations=educations,
                                         certifications=certifications)
@@ -340,7 +340,7 @@ def resume(first_name,last_name):
         content = render_template('basictheme.html',
                                    user=user,positions=positions,educations=educations,
                                     certifications=certifications)
-
+    print 'Modified CSS %s'%css
     return render_template('resume.html',theme=content,themestyle=css,first_name=first_name,last_name=last_name)
 
 @app.route('/edit/<first_name>.<last_name>')
