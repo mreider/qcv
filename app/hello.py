@@ -387,7 +387,8 @@ def save(first_name,last_name):
 
     db.session.add(theme)
     db.session.commit()
-
+    import time
+    time.sleep(5)
     return redirect('/%s.%s'%(first_name,last_name))
 @app.route('/')
 def hello():
