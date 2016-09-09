@@ -1,4 +1,5 @@
 $( function() {
+    $("#preloader").hide();
     $('#logout-btn').button();
     $('#logout-btn').click(function(){
         window.location.href = '/logout'
@@ -9,9 +10,13 @@ $( function() {
 
     $('#sync-btn').click(function(){
         //Start loading GIF
+        $("#status").fadeIn();
+        $("#preloader").fadeIn();
         console.log('Going to sync');
         $.post('/sync',function(){
             //End loading GIF
+            $("#status").fadeOut();
+            $("#preloader").fadeOut();
         });
         console.log('Sync Triggered');
     });

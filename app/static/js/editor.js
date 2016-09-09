@@ -1,4 +1,5 @@
 $(document).ready(function(){
+    $("#preloader").hide();
     var editor = ace.edit("editor");
     editor.setTheme("ace/theme/monokai");
     editor.getSession().setMode("ace/mode/html");
@@ -12,6 +13,17 @@ $(document).ready(function(){
 
     });
 
+    $('#format-css').click(function(){
+        console.log('Formatting CSS');
+        var beautify = ace.require("ace/ext/beautify");
+        beautify.beautify(editor1.session);
+    });
+    $('#format-html').click(function(){
+        console.log('Formatting html');
+        var beautify = ace.require("ace/ext/beautify");
+        beautify.beautify(editor.session);
+    });
+
     $('#save-btn').click(function(){
         console.log('Submit intercepted');
         var beautify = ace.require("ace/ext/beautify"); // get reference to extension
@@ -21,7 +33,12 @@ $(document).ready(function(){
         var html = editor.getValue();
         var css = editor1.getValue();
         var path =window.location.href = '/'+window.location.pathname.split('/')[2];
+        $("#status").fadeIn();
+        $("#preloader").fadeIn();
+
         $.post('/save'+path,{html_content:html,css_content:css},function(data){
+            $("#status").fadeOut();
+            $("#preloader").fadeOut();
 //            window.location.href = '/'+path;
         });
     });

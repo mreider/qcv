@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title></title>
     <link rel=StyleSheet href="{{ url_for('static', filename='css/skeleton.css') }}" type="text/css" >
+    <link rel=StyleSheet href="{{ url_for('static', filename='css/main.css') }}" type="text/css" >
 
     <script src="{{ url_for('static', filename='js/jquery-3.1.0.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery-ui.js') }}"></script>
@@ -18,6 +19,10 @@
     </style>
 </head>
 <body>
+<div id="preloader">
+	<div id="status">&nbsp;</div>
+</div>
+
     <div class="container">
         <div class="row">
             <div class="tweleve columns">
@@ -34,13 +39,16 @@
                             <div id="editor1">
                                 {{css}}
                             </div>
-                            <input type="hidden" value="{{css}}" id="original-css">
+                            <input type="hidden" value="{{default_css}}" id="original-css">
                         </div>
                     </div>
                     <div class="text-center"></div>
                     <div style="text-align:right;">
                         <a id="revert-css" href="#">revert CSS to default</a>
                     </div>
+                    <!--<div>-->
+                        <!--<a href="#" id="format-css">Format</a>-->
+                    <!--</div>-->
                 </div>
             <div class="row">
                 <div class="tweleve columns">
@@ -52,13 +60,16 @@
                             <div id="editor">
                                 {{content}}
                             </div>
-                            <input type="hidden" value="{{content}}" id="original-html">
+                            <input type="hidden" value="{{default_html}}" id="original-html">
                         </div>
                     </div>
                     <div class="text-center"></div>
                     <div style="text-align:right;">
                         <a id="revert-html" href="#">revert HTML to default</a>
                     </div>
+                    <!--<div>-->
+                        <!--<a href="#" id="format-html">Format</a>-->
+                    <!--</div>-->
 
                 </div>
 

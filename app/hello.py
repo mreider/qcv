@@ -357,19 +357,28 @@ def edit(first_name,last_name):
         css = theme.css_content
     import os
     dir_path = os.path.dirname(os.path.realpath(__file__))
+    defult_html_path = os.path.join(dir_path,'templates','basictheme.html')
+    f = open(defult_html_path)
+    default_html_content = f.read()
+    f.close()
+
+    default_style_path = os.path.join(dir_path,'default-style.css')
+    f = open(default_style_path)
+    default_css_content = f.read()
+    f.close()
 
     if htmlcontent:
         content = htmlcontent
     else:
-        filepath = os.path.join(dir_path,'templates','basictheme.html')
-        f = open(filepath)
-        content = f.read()
-        f.close()
+        content = default_html_content
 
-    return render_template('theme_editor.html',content=content,css=css,first_name=first_name,last_name=last_name)
+    return render_template('theme_editor.html',content=content,css=css,first_name=first_name,
+                           last_name=last_name,default_html=default_html_content,default_css=default_css_content)
 
 @app.route('/save/<first_name>.<last_name>',methods=['POST'])
 def save(first_name,last_name):
+    from lxml import etree, html
+
     html_content = request.form.get('html_content')
     css_content = request.form.get('css_content')
     # print 'HTML %s'%html_content
@@ -381,6 +390,8 @@ def save(first_name,last_name):
     # soup = BeautifulSoup(css_content)
     # css_content = soup.prettify(formatter=None)
     if theme:
+        # document_root = html.fromstring(html_content)
+        # html_content = etree.tostring(document_root, encoding='unicode', pretty_print=True)
         theme.html_content = html_content
         theme.css_content = css_content
     else:
