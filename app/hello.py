@@ -48,6 +48,7 @@ class Themes(db.Model):
     last_name = db.Column(db.Unicode(100))
     html_content = db.Column(db.Text)
     css_content = db.Column(db.Text)
+    num_users = db.Column(db.Integer,default=0)
 
 class Education(db.Model):
     __tablename__ = 'education'
@@ -92,8 +93,8 @@ def update_user(data):
         if user_id:
             user = UserProfile.query.get(user_id)
             if user:
-                user.first_name = data.get('firstName')
-                user.last_name = data.get('lastName')
+                user.first_name = data.get('firstName').lower()
+                user.last_name = data.get('lastName').lower()
                 user.industry = data.get('industry')
                 user.headline = data.get('headline')
                 user.picture_url = data.get('pictureUrl')
@@ -112,16 +113,17 @@ def update_user(data):
     except:
         traceback.print_exc()
         db.session.rollback()
+
 def update_certifications(data,user):
     if data.get('certifications'):
         user_id = user.user_id
         for cert in data.get('certifications').get('values'):
             cert_id = cert.get('id')
-            year = position.get('startDate').get('year')
-            month = position.get('startDate').get('month')
+            year = cert.get('startDate').get('year')
+            month = cert.get('startDate').get('month')
             start_date = datetime.now().replace(year=year,month=month)
-            year = position.get('endDate').get('year')
-            month = position.get('startDate').get('month')
+            year = cert.get('endDate').get('year')
+            month = cert.get('startDate').get('month')
             end_date = datetime.now().replace(year=year,month=month)
 
             certification = Certifications.query.get(cert_id)
@@ -196,17 +198,21 @@ def update_positions(data,user):
 
 @app.route('/sync',methods=['GET','POST'])
 def sync():
-    token = session['access_token']
-    profile_url = 'https://api.linkedin.com/v1/people/~:(id,first-name,last-name,headline,picture-url,industry,summary,specialties,positions:(id,title,summary,start-date,end-date,is-current,company:(id,name,type,size,industry,ticker)),educations:(id,school-name,field-of-study,start-date,end-date,degree,activities,notes),associations,interests,num-recommenders,date-of-birth,publications:(id,title,publisher:(name),authors:(id,name),date,url,summary),languages:(id,language:(name),proficiency:(level,name)),skills:(id,skill:(name)),certifications:(id,name,authority:(name),number,start-date,end-date),courses:(id,name,number),recommendations-received:(id,recommendation-type,recommendation-text,recommender),honors-awards,three-current-positions,three-past-positions,volunteer)?oauth2_access_token='+token+'&format=json'
-    print profile_url
-    response = requests.get(profile_url)
+    return do_sync()
 
+
+def do_sync():
+    token = session['access_token']
+    profile_url = 'https://api.linkedin.com/v1/people/~:(id,first-name,last-name,headline,picture-url,industry,summary,specialties,positions:(id,title,summary,start-date,end-date,is-current,company:(id,name,type,size,industry,ticker)),educations:(id,school-name,field-of-study,start-date,end-date,degree,activities,notes),associations,interests,num-recommenders,date-of-birth,publications:(id,title,publisher:(name),authors:(id,name),date,url,summary),languages:(id,language:(name),proficiency:(level,name)),skills:(id,skill:(name)),certifications:(id,name,authority:(name),number,start-date,end-date),courses:(id,name,number),recommendations-received:(id,recommendation-type,recommendation-text,recommender),honors-awards,three-current-positions,three-past-positions,volunteer)?oauth2_access_token=' + token + '&format=json'
+    # print profile_url
+    response = requests.get(profile_url)
     print response.status_code
     if response.status_code == 200:
         data = json.loads(response.text)
         print data
         update_user(data)
     return session['access_token']
+
 
 @app.route('/pdf/<first_name>.<last_name>',methods=['GET'])
 def pdf(first_name,last_name):
@@ -272,10 +278,11 @@ def auth_callback():
         if response.status_code == 200:
             data = json.loads(response.text)
             id = data.get('id')
-            first_name = data.get('firstName')
-            last_name = data.get('lastName')
+            first_name = data.get('firstName').lower()
+            last_name = data.get('lastName').lower()
             session['first_name'] = first_name
             session['last_name'] = last_name
+            do_sync()
             return redirect(SETTINGS['URL_BASE']+first_name+'.'+last_name)
     else:
         return render_template('error.html')
@@ -335,13 +342,14 @@ def resume(first_name,last_name):
         content = render_template_string(htmlcontent,first_name=first_name,last_name=last_name,
                                        user=user,positions=positions,educations=educations,
                                         certifications=certifications)
-        print 'Saved content'
+        # print 'Saved content'
     else:
         content = render_template('basictheme.html',
                                    user=user,positions=positions,educations=educations,
                                     certifications=certifications)
-    print 'Modified CSS %s'%css
-    return render_template('resume.html',theme=content,themestyle=css,first_name=first_name,last_name=last_name)
+    # print 'Modified CSS %s'%css
+    return render_template('resume.html',theme=content,themestyle=css,
+                           first_name=first_name,last_name=last_name,num_users = theme.num_users if theme and theme.num_users else 0)
 
 @app.route('/edit/<first_name>.<last_name>')
 def edit(first_name,last_name):
@@ -354,7 +362,7 @@ def edit(first_name,last_name):
     print theme
     if theme:
         htmlcontent = theme.html_content
-        css = theme.css_content
+        css = theme.css_content if theme.css_content else ''
     import os
     dir_path = os.path.dirname(os.path.realpath(__file__))
     defult_html_path = os.path.join(dir_path,'templates','basictheme.html')
@@ -367,6 +375,7 @@ def edit(first_name,last_name):
     default_css_content = f.read()
     f.close()
 
+    print 'Default CSS Content %s'%default_css_content
     if htmlcontent:
         content = htmlcontent
     else:
@@ -375,14 +384,39 @@ def edit(first_name,last_name):
     return render_template('theme_editor.html',content=content,css=css,first_name=first_name,
                            last_name=last_name,default_html=default_html_content,default_css=default_css_content)
 
+@app.route('/use/<first_name>.<last_name>',methods=['POST'])
+def use_theme(first_name,last_name):
+    print 'Going to use theme of (%s,%s)'%(first_name,last_name)
+    current_first_name = session.get('first_name')
+    current_last_name = session.get('last_name')
+
+    target_theme = Themes.query.filter_by(first_name=first_name).filter_by(last_name=last_name).first()
+    if target_theme:
+        current_theme = Themes.query.filter_by(first_name=current_first_name).filter_by(last_name=current_last_name).first()
+        print current_theme
+        if current_theme:
+            current_theme.html_content = target_theme.html_content
+            current_theme.css_content = target_theme.css_content
+            target_theme.num_users = target_theme.num_users + 1
+        else:
+            theme = Themes(first_name=current_first_name,last_name=current_last_name
+                           ,
+                           html_content=target_theme.html_content,css_content=target_theme.css_content)
+            db.session.add(theme)
+        db.session.commit()
+    import time
+    time.sleep(10)
+    return redirect('/%s.%s'%(current_first_name,current_last_name))
+
+
 @app.route('/save/<first_name>.<last_name>',methods=['POST'])
 def save(first_name,last_name):
-    from lxml import etree, html
+    # from lxml import etree, html
 
     html_content = request.form.get('html_content')
     css_content = request.form.get('css_content')
     # print 'HTML %s'%html_content
-    print 'CSS %s'%css_content
+    # print 'CSS %s'%css_content
     theme = Themes.query.filter_by(first_name=first_name).filter_by(last_name=last_name).first()
     # soup = BeautifulSoup(html_content)
     # html_content = soup.prettify(formatter=None)
@@ -412,6 +446,8 @@ def hello():
         return render_template('home.html',access_token = session.get('acess_token'))
     else:
         return render_template('index.html')
+
+
 
 
 

@@ -34,7 +34,7 @@
 
             </div>
             <div class="columns three">
-                <span>{{session.get('first_name')}} {{session.get('last_name')}}</span>
+                <span>{{session.get('first_name') | title}} {{session.get('last_name') | title}}</span>
             </div>
 
             {% endif %}

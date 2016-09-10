@@ -1,3 +1,4 @@
+{% if user %}
     <div class="row" >
             <p></p>
             <div class="row">
@@ -6,7 +7,7 @@
                 </div>
                 <div class="ten columns">
                     <div class="row">
-                        {{user.first_name}} {{user.last_name}}
+                        {{user.first_name|title}} {{user.last_name|title}}
                     </div>
                     <div class="row">
                         {{user.summary}}
@@ -82,3 +83,5 @@
                 {% endfor %}
             </div>
     </div>
+
+{% endif %}
